@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../context/ThemeContext';
 import Header from '../../components/Header';
 // Replace the @env import with direct import from config
 import { OPENAI_API_KEY } from '../../config';
@@ -34,7 +35,7 @@ export default function ChatbotScreen() {
       timestamp: new Date(),
     },
   ]);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { isDarkMode } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
@@ -127,9 +128,9 @@ export default function ChatbotScreen() {
     }
   };
 
-  const handleThemeChange = (isDark: boolean) => {
-    setIsDarkMode(isDark);
-  };
+  // const handleThemeChange = (isDark: boolean) => {
+  //   setIsDarkMode(isDark);
+  // };
 
   const renderMessageItem = ({ item }: { item: Message }) => {
     return (
@@ -160,9 +161,9 @@ export default function ChatbotScreen() {
     <SafeAreaView style={[styles.container, isDarkMode && styles.containerDark]}>
       <StatusBar style={isDarkMode ? "light" : "dark"} />
       
-      <Header isDarkMode={isDarkMode} onThemeChange={handleThemeChange} />
+      <Header />
       
-      <View style={styles.contentContainer}>
+      <View style={[styles.contentContainer, isDarkMode && styles.contentContainerDark]}>
         <View style={[styles.chatHeader, isDarkMode && styles.chatHeaderDark]}>
           <Ionicons name="medkit" size={24} color={isDarkMode ? "#8cc63f" : "#4a7c59"} />
           <Text style={[styles.chatTitle, isDarkMode && styles.chatTitleDark]}>
@@ -178,6 +179,7 @@ export default function ChatbotScreen() {
           contentContainerStyle={styles.messageList}
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          style={isDarkMode ? styles.darkFlatList : null}
         />
 
         {isLoading && (
@@ -192,7 +194,7 @@ export default function ChatbotScreen() {
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={100}
-          style={styles.inputContainer}
+          style={[styles.inputContainer, isDarkMode && styles.inputContainerDark]}
         >
           <View style={[styles.inputWrapper, isDarkMode && styles.inputWrapperDark]}>
             <TextInput
@@ -207,6 +209,7 @@ export default function ChatbotScreen() {
             <TouchableOpacity 
               style={[
                 styles.sendButton, 
+                isDarkMode && styles.sendButtonDark,
                 (!message.trim() || isLoading) && styles.disabledButton
               ]} 
               onPress={handleSend}
@@ -233,6 +236,13 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 100, // Space for header
     paddingBottom: 70, // Space for bottom navigation
+    backgroundColor: '#f9f9f9',
+  },
+  contentContainerDark: {
+    backgroundColor: '#121212',
+  },
+  darkFlatList: {
+    backgroundColor: '#121212',
   },
   chatHeader: {
     flexDirection: 'row',
@@ -305,6 +315,10 @@ const styles = StyleSheet.create({
     borderTopColor: '#e0e0e0',
     backgroundColor: '#fff',
   },
+  inputContainerDark: {
+    backgroundColor: '#1a1a1a',
+    borderTopColor: '#333',
+  },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -335,6 +349,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
+  },
+  sendButtonDark: {
+    backgroundColor: '#3a6c49',
   },
   disabledButton: {
     opacity: 0.5,

@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface Category {
   name: string;
@@ -21,7 +22,7 @@ const CategorySection = ({ categories, onCategoryPress, onSeeAllPress, isDarkMod
       <View style={styles.sectionHeader}>
         <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Categories</Text>
         <TouchableOpacity onPress={onSeeAllPress}>
-          <Text style={[styles.seeAll, isDarkMode && styles.darkText]}>See All</Text>
+          <Text style={[styles.seeAll, isDarkMode && styles.darkPrimaryText]}>See All</Text>
         </TouchableOpacity>
       </View>
       <ScrollView 
@@ -32,14 +33,25 @@ const CategorySection = ({ categories, onCategoryPress, onSeeAllPress, isDarkMod
         {categories.map((category, index) => (
           <TouchableOpacity 
             key={index} 
-            style={[styles.categoryItem, isDarkMode && styles.darkCard]}
+            style={[styles.categoryItem, isDarkMode && styles.darkCategoryItem]}
             onPress={() => onCategoryPress(category)}
+            activeOpacity={0.7}
           >
-            <View style={styles.categoryImageContainer}>
+            <View style={[
+              styles.categoryImageContainer, 
+              isDarkMode && styles.darkCategoryImageContainer
+            ]}>
               <Image source={category.image} style={styles.categoryImage} />
-              <View style={styles.categoryIconOverlay}>
-                <Ionicons name={category.icon} size={24} color="#fff" />
-              </View>
+              <LinearGradient
+                colors={isDarkMode 
+                  ? ['rgba(42,84,52,0.85)', 'rgba(62,125,50,0.9)'] 
+                  : ['rgba(62,125,50,0.7)', 'rgba(62,125,50,0.8)']}
+                style={styles.categoryIconOverlay}
+              >
+                <View style={[styles.iconCircle, isDarkMode && styles.darkIconCircle]}>
+                  <Ionicons name={category.icon} size={24} color="#fff" />
+                </View>
+              </LinearGradient>
             </View>
             <Text style={[styles.categoryText, isDarkMode && styles.darkText]}>{category.name}</Text>
           </TouchableOpacity>
@@ -66,7 +78,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   darkText: {
-    color: "#fff",
+    color: "#f0f0f0",
   },
   seeAll: {
     color: "#3e7d32",
@@ -82,6 +94,9 @@ const styles = StyleSheet.create({
     marginRight: 20,
     width: 80,
   },
+  darkCategoryItem: {
+    // No additional styles needed
+  },
   categoryImageContainer: {
     width: 70,
     height: 70,
@@ -94,6 +109,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
+  darkCategoryImageContainer: {
+    shadowColor: "#000",
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+    elevation: 6,
+    borderWidth: Platform.OS === 'ios' ? 1 : 0,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
   categoryImage: {
     width: '100%',
     height: '100%',
@@ -104,20 +127,34 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(62,125,50,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  iconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  darkIconCircle: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
   },
   categoryText: {
     fontSize: 13,
     textAlign: "center",
     fontWeight: '500',
+    marginTop: 4,
+    color: "#333",
   },
   darkSection: {
     backgroundColor: "#121212",
   },
-  darkCard: {
-    backgroundColor: "#333",
+  darkPrimaryText: {
+    color: "#8bc34a",
   },
 });
 

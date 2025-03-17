@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
   },
   darkFooter: {
     backgroundColor: "#333",
+    borderTopColor: "#444",
   },
   darkText: {
     color: "#fff",

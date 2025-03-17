@@ -3,12 +3,14 @@ import { View, StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useTheme } from '../../context/ThemeContext';
 
 import BottomNavigation from '../../components/BottomNavigation';
 
 export default function TabsLayout() {
   const [activeTab, setActiveTab] = useState('index');
   const router = useRouter();
+  const { isDarkMode } = useTheme();
 
   // Handle tab press through our custom bottom navigation
   const handleTabPress = (item) => {
@@ -35,7 +37,7 @@ export default function TabsLayout() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDarkMode && styles.darkContainer]}>
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -58,7 +60,7 @@ export default function TabsLayout() {
           {name: "Profile", icon: "person-outline", active: activeTab === 'profile'}
         ]}
         onItemPress={handleTabPress}
-        isDarkMode={false}
+        isDarkMode={isDarkMode}
       />
     </View>
   );
@@ -67,5 +69,9 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f9f9f9',
+  },
+  darkContainer: {
+    backgroundColor: '#121212',
   },
 });

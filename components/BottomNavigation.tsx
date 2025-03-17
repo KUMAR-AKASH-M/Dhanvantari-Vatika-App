@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
   },
   darkNav: {
     backgroundColor: "#333",
+    borderTopColor: '#444444',
   },
   darkText: {
     color: "#ccc",

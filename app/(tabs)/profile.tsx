@@ -3,81 +3,253 @@ import {
   Text, 
   View, 
   StyleSheet, 
-  Image, 
   TouchableOpacity,
   ScrollView,
-  Switch
+  Switch,
+  Animated,
+  Dimensions
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "../../context/ThemeContext";
+import { useWishlist } from "../../context/WishlistContext";
+import { useSavedRemedies } from "../../context/RemedyContext";
+import { useSavedArticles } from "../../context/ArticleContext";
+import { useSavedHerbs } from "../../context/HerbContext";
+import { useOrders } from "../../context/OrderContext";
+import * as ImagePicker from 'expo-image-picker';
 
 import Header from "../../components/Header";
+import ProfileHeader from "../../components/profile/ProfileHeader";
+import MenuSection from "../../components/profile/MenuSection";
+import OrdersModal from "../../components/profile/OrdersModal";
+import SavedItemsModal from "../../components/profile/SavedItemsModal";
+import SavedRemediesModal from "../../components/profile/SavedRemediesModal";
+import SavedArticlesModal from "../../components/profile/SavedArticlesModal";
+import SavedHerbsModal from "../../components/profile/SavedHerbsModal";
+import EditProfileModal from "../../components/profile/EditProfileModal";
+import HelpCenterModal from "../../components/profile/HelpCenterModal";
+import ContactUsModal from "../../components/profile/ContactUsModal";
+import PrivacyPolicyModal from "../../components/profile/PrivacyPolicyModal";
 
-const PROFILE_IMAGE = { uri: 'https://randomuser.me/api/portraits/women/65.jpg' };
+const PROFILE_IMAGE = { uri: 'https://randomuser.me/api/portraits/men/65.jpg' };
+const { height } = Dimensions.get('window');
 
 // Sample profile data
 const USER_DATA = {
-  name: "Anjali Sharma",
-  email: "anjali.sharma@example.com",
+  name: "Kumar Akash",
+  email: "kumar.akash@example.com",
   phone: "+91 98765 43210",
   memberSince: "June 2022",
   address: "123 Park Street, Mumbai, Maharashtra",
 };
 
+// Initial sample data
+const INITIAL_SAVED_ITEMS = [
+  {
+    id: 'item1',
+    name: 'Ashwagandha Root Powder',
+    category: 'Herbs & Supplements',
+    price: '₹450',
+    discount: '10% off',
+    stock: 'In Stock',
+    image: 'https://placehold.co/60x60/png?text=Herb'
+  },
+  {
+    id: 'item2',
+    name: 'Tulsi Drops',
+    category: 'Herbal Supplements',
+    price: '₹320',
+    discount: '15% off',
+    stock: 'In Stock',
+    image: 'https://placehold.co/60x60/png?text=Drops'
+  }
+];
+
+const INITIAL_SAVED_REMEDIES = [
+  {
+    id: 'remedy1',
+    name: 'Herbal Tea for Cold & Cough',
+    ingredients: 'Ginger, Tulsi, Honey, Lemon',
+    condition: 'Cold & Cough',
+    saved: '2 weeks ago',
+    image: 'https://placehold.co/60x60/png?text=Tea'
+  }
+];
+
 export default function ProfileScreen() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { isDarkMode } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [emailUpdates, setEmailUpdates] = useState(true);
+  const [ordersModalVisible, setOrdersModalVisible] = useState(false);
+  const [savedItemsModalVisible, setSavedItemsModalVisible] = useState(false);
+  const [remediesModalVisible, setRemediesModalVisible] = useState(false);
+  const [articlesModalVisible, setArticlesModalVisible] = useState(false);
+  const [herbsModalVisible, setHerbsModalVisible] = useState(false);
+  const [editProfileModalVisible, setEditProfileModalVisible] = useState(false);
+  const [helpCenterModalVisible, setHelpCenterModalVisible] = useState(false);
+  const [contactUsModalVisible, setContactUsModalVisible] = useState(false);
+  const [privacyPolicyModalVisible, setPrivacyPolicyModalVisible] = useState(false);
+  
+  const [userData, setUserData] = useState(USER_DATA);
+  const [profileImage, setProfileImage] = useState(PROFILE_IMAGE);
+  const [slideAnimation] = useState(new Animated.Value(height));
+  
+  // Use contexts for all saved data
+  const { savedItems, removeFromWishlist } = useWishlist();
+  const { savedRemedies, removeFromSavedRemedies } = useSavedRemedies();
+  const { savedArticles, removeFromSavedArticles } = useSavedArticles();
+  const { savedHerbs, removeFromSavedHerbs } = useSavedHerbs();
+  const { orders } = useOrders();
 
-  // Theme change handler
-  const handleThemeChange = (isDark: boolean) => {
-    setIsDarkMode(isDark);
-    console.log("Theme changed to:", isDark ? "dark" : "light");
+  // Function to add item to cart from saved items
+  const addToCart = (item) => {
+    console.log(`Added ${item.name} to cart`);
+    // Here you would add the item to your cart state or context
+    // For this example, we'll just show an alert
+    alert(`Added ${item.name} to cart!`);
+  };
+
+  const toggleModal = (modalSetter, visible) => {
+    if (visible) {
+      modalSetter(true);
+      Animated.spring(slideAnimation, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 50,
+        friction: 7
+      }).start();
+    } else {
+      Animated.timing(slideAnimation, {
+        toValue: height,
+        duration: 250,
+        useNativeDriver: true
+      }).start(() => {
+        modalSetter(false);
+      });
+    }
+  };
+
+  const handleSaveUserData = (updatedData) => {
+    setUserData(prev => ({
+      ...prev,
+      name: updatedData.name,
+      email: updatedData.email,
+      phone: updatedData.phone,
+      address: updatedData.address
+    }));
+    
+    // Update profile image if changed
+    if (updatedData.profileImage && updatedData.profileImage.uri !== profileImage.uri) {
+      setProfileImage(updatedData.profileImage);
+    }
+    
+    // Here you would typically make an API call to update the user data
+    console.log("Profile updated:", updatedData);
   };
 
   // Menu items for profile
-  const menuItems = [
+  const accountMenuItems = [
     { 
       id: 'orders', 
       title: 'My Orders', 
       icon: 'cart-outline',
-      badge: 2
+      badge: orders.length > 0 ? orders.length.toString() : undefined,  // Convert to string
+      onPress: () => toggleModal(setOrdersModalVisible, true)
     },
     { 
       id: 'saved', 
       title: 'Saved Items', 
       icon: 'heart-outline',
-      badge: 5
-    },
-    { 
-      id: 'appointments', 
-      title: 'My Appointments', 
-      icon: 'calendar-outline',
-      badge: 1
-    },
-    { 
-      id: 'consultations', 
-      title: 'Consultations', 
-      icon: 'chatbubbles-outline',
-      badge: 0
+      badge: savedItems.length > 0 ? savedItems.length.toString() : undefined,  // Convert to string
+      onPress: () => toggleModal(setSavedItemsModalVisible, true)
     },
     { 
       id: 'remedies', 
       title: 'Saved Remedies', 
-      icon: 'leaf-outline',
-      badge: 3
+      icon: 'flask-outline',
+      badge: savedRemedies.length,
+      onPress: () => toggleModal(setRemediesModalVisible, true)
     },
+    { 
+      id: 'herbs', 
+      title: 'Saved Herbs', 
+      icon: 'leaf-outline',
+      badge: savedHerbs.length,
+      onPress: () => toggleModal(setHerbsModalVisible, true)
+    },
+    { 
+      id: 'articles', 
+      title: 'Saved Articles', 
+      icon: 'book-outline',
+      badge: savedArticles.length,
+      onPress: () => toggleModal(setArticlesModalVisible, true)
+    },
+  ];
+
+  const settingsMenuItems = [
+    {
+      id: 'notifications',
+      title: 'Push Notifications',
+      icon: 'notifications-outline',
+      switch: (
+        <Switch
+          trackColor={{ false: "#ddd", true: "#c8e6c9" }}
+          thumbColor={notifications ? "#3e7d32" : isDarkMode ? "#888" : "#f4f3f4"}
+          ios_backgroundColor="#ddd"
+          onValueChange={setNotifications}
+          value={notifications}
+        />
+      )
+    },
+    {
+      id: 'email',
+      title: 'Email Updates',
+      icon: 'mail-outline',
+      switch: (
+        <Switch
+          trackColor={{ false: "#ddd", true: "#c8e6c9" }}
+          thumbColor={emailUpdates ? "#3e7d32" : isDarkMode ? "#888" : "#f4f3f4"}
+          ios_backgroundColor="#ddd"
+          onValueChange={setEmailUpdates}
+          value={emailUpdates}
+        />
+      )
+    },
+    {
+      id: 'language',
+      title: 'Language',
+      icon: 'language-outline',
+      value: 'English'
+    }
+  ];
+
+  const supportMenuItems = [
+    {
+      id: 'help',
+      title: 'Help Center',
+      icon: 'help-circle-outline',
+      onPress: () => toggleModal(setHelpCenterModalVisible, true)
+    },
+    {
+      id: 'contact',
+      title: 'Contact Us',
+      icon: 'chatbox-ellipses-outline',
+      onPress: () => toggleModal(setContactUsModalVisible, true)
+    },
+    {
+      id: 'privacy',
+      title: 'Privacy Policy',
+      icon: 'document-text-outline',
+      onPress: () => toggleModal(setPrivacyPolicyModalVisible, true)
+    }
   ];
 
   return (
     <View style={[styles.container, isDarkMode && styles.darkContainer]}>
       <StatusBar style={isDarkMode ? "light" : "dark"} />
       
-      <Header 
-        isDarkMode={isDarkMode}
-        onThemeChange={handleThemeChange}
-        title="My Profile"
-      />
+      <Header title="My Profile" />
       
       <ScrollView 
         style={styles.scrollView}
@@ -85,165 +257,33 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Profile Header */}
-        <View style={[styles.profileHeader, isDarkMode && styles.darkProfileHeader]}>
-          <Image source={PROFILE_IMAGE} style={styles.profileImage} />
-          <View style={styles.profileInfo}>
-            <Text style={[styles.profileName, isDarkMode && styles.darkText]}>
-              {USER_DATA.name}
-            </Text>
-            <Text style={[styles.profileEmail, isDarkMode && styles.darkMutedText]}>
-              {USER_DATA.email}
-            </Text>
-            <TouchableOpacity style={styles.editButton}>
-              <Text style={styles.editButtonText}>Edit Profile</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <ProfileHeader 
+          userData={userData}
+          profileImage={profileImage}  // Now passing the state version
+          isDarkMode={isDarkMode}
+          onEdit={() => toggleModal(setEditProfileModalVisible, true)}
+        />
         
-        {/* Profile Menu */}
-        <View style={[styles.menuSection, isDarkMode && styles.darkSection]}>
-          <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
-            My Account
-          </Text>
-          
-          {menuItems.map((item) => (
-            <TouchableOpacity 
-              key={item.id}
-              style={[styles.menuItem, isDarkMode && styles.darkMenuItem]}
-            >
-              <View style={styles.menuItemLeft}>
-                <View style={[styles.menuIconContainer, isDarkMode && styles.darkMenuIconContainer]}>
-                  <Ionicons name={item.icon} size={20} color={isDarkMode ? "#3e7d32" : "#3e7d32"} />
-                </View>
-                <Text style={[styles.menuItemText, isDarkMode && styles.darkText]}>
-                  {item.title}
-                </Text>
-              </View>
-              
-              <View style={styles.menuItemRight}>
-                {item.badge > 0 && (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{item.badge}</Text>
-                  </View>
-                )}
-                <Ionicons name="chevron-forward" size={20} color={isDarkMode ? "#aaa" : "#999"} />
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {/* Account Menu Section */}
+        <MenuSection 
+          title="My Account"
+          items={accountMenuItems}
+          isDarkMode={isDarkMode}
+        />
         
         {/* Settings Section */}
-        <View style={[styles.menuSection, isDarkMode && styles.darkSection]}>
-          <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
-            Settings
-          </Text>
-          
-          <View style={[styles.menuItem, isDarkMode && styles.darkMenuItem]}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIconContainer, isDarkMode && styles.darkMenuIconContainer]}>
-                <Ionicons name="notifications-outline" size={20} color={isDarkMode ? "#3e7d32" : "#3e7d32"} />
-              </View>
-              <Text style={[styles.menuItemText, isDarkMode && styles.darkText]}>
-                Push Notifications
-              </Text>
-            </View>
-            
-            <Switch
-              trackColor={{ false: "#ddd", true: "#c8e6c9" }}
-              thumbColor={notifications ? "#3e7d32" : isDarkMode ? "#888" : "#f4f3f4"}
-              ios_backgroundColor="#ddd"
-              onValueChange={setNotifications}
-              value={notifications}
-            />
-          </View>
-          
-          <View style={[styles.menuItem, isDarkMode && styles.darkMenuItem]}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIconContainer, isDarkMode && styles.darkMenuIconContainer]}>
-                <Ionicons name="mail-outline" size={20} color={isDarkMode ? "#3e7d32" : "#3e7d32"} />
-              </View>
-              <Text style={[styles.menuItemText, isDarkMode && styles.darkText]}>
-                Email Updates
-              </Text>
-            </View>
-            
-            <Switch
-              trackColor={{ false: "#ddd", true: "#c8e6c9" }}
-              thumbColor={emailUpdates ? "#3e7d32" : isDarkMode ? "#888" : "#f4f3f4"}
-              ios_backgroundColor="#ddd"
-              onValueChange={setEmailUpdates}
-              value={emailUpdates}
-            />
-          </View>
-          
-          <TouchableOpacity style={[styles.menuItem, isDarkMode && styles.darkMenuItem]}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIconContainer, isDarkMode && styles.darkMenuIconContainer]}>
-                <Ionicons name="language-outline" size={20} color={isDarkMode ? "#3e7d32" : "#3e7d32"} />
-              </View>
-              <Text style={[styles.menuItemText, isDarkMode && styles.darkText]}>
-                Language
-              </Text>
-            </View>
-            
-            <View style={styles.menuItemRight}>
-              <Text style={[styles.menuItemValue, isDarkMode && styles.darkMutedText]}>English</Text>
-              <Ionicons name="chevron-forward" size={20} color={isDarkMode ? "#aaa" : "#999"} />
-            </View>
-          </TouchableOpacity>
-        </View>
+        <MenuSection 
+          title="Settings"
+          items={settingsMenuItems}
+          isDarkMode={isDarkMode}
+        />
         
         {/* Support Section */}
-        <View style={[styles.menuSection, isDarkMode && styles.darkSection]}>
-          <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
-            Support
-          </Text>
-          
-          <TouchableOpacity style={[styles.menuItem, isDarkMode && styles.darkMenuItem]}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIconContainer, isDarkMode && styles.darkMenuIconContainer]}>
-                <Ionicons name="help-circle-outline" size={20} color={isDarkMode ? "#3e7d32" : "#3e7d32"} />
-              </View>
-              <Text style={[styles.menuItemText, isDarkMode && styles.darkText]}>
-                Help Center
-              </Text>
-            </View>
-            
-            <View style={styles.menuItemRight}>
-              <Ionicons name="chevron-forward" size={20} color={isDarkMode ? "#aaa" : "#999"} />
-            </View>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={[styles.menuItem, isDarkMode && styles.darkMenuItem]}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIconContainer, isDarkMode && styles.darkMenuIconContainer]}>
-                <Ionicons name="chatbox-ellipses-outline" size={20} color={isDarkMode ? "#3e7d32" : "#3e7d32"} />
-              </View>
-              <Text style={[styles.menuItemText, isDarkMode && styles.darkText]}>
-                Contact Us
-              </Text>
-            </View>
-            
-            <View style={styles.menuItemRight}>
-              <Ionicons name="chevron-forward" size={20} color={isDarkMode ? "#aaa" : "#999"} />
-            </View>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={[styles.menuItem, isDarkMode && styles.darkMenuItem]}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIconContainer, isDarkMode && styles.darkMenuIconContainer]}>
-                <Ionicons name="document-text-outline" size={20} color={isDarkMode ? "#3e7d32" : "#3e7d32"} />
-              </View>
-              <Text style={[styles.menuItemText, isDarkMode && styles.darkText]}>
-                Privacy Policy
-              </Text>
-            </View>
-            
-            <View style={styles.menuItemRight}>
-              <Ionicons name="chevron-forward" size={20} color={isDarkMode ? "#aaa" : "#999"} />
-            </View>
-          </TouchableOpacity>
-        </View>
+        <MenuSection 
+          title="Support"
+          items={supportMenuItems}
+          isDarkMode={isDarkMode}
+        />
         
         {/* Logout Button */}
         <TouchableOpacity style={[styles.logoutButton, isDarkMode && styles.darkLogoutButton]}>
@@ -255,6 +295,95 @@ export default function ProfileScreen() {
           Version 1.0.0
         </Text>
       </ScrollView>
+
+      {/* Orders Modal */}
+      <OrdersModal
+        visible={ordersModalVisible}
+        toggleModal={(visible) => toggleModal(setOrdersModalVisible, visible)}
+        slideAnimation={slideAnimation}
+        isDarkMode={isDarkMode}
+        orders={orders}  // Pass orders from context
+      />
+
+      {/* Saved Items Modal */}
+      <SavedItemsModal
+        visible={savedItemsModalVisible}
+        toggleModal={(visible) => toggleModal(setSavedItemsModalVisible, visible)}
+        slideAnimation={slideAnimation}
+        isDarkMode={isDarkMode}
+        savedItems={savedItems} // Use items from wishlist context
+        onAddToCart={addToCart}
+        onRemoveItem={removeFromWishlist} // Add ability to remove items
+      />
+
+      {/* Saved Remedies Modal */}
+      <SavedRemediesModal
+        visible={remediesModalVisible}
+        toggleModal={(visible) => toggleModal(setRemediesModalVisible, visible)}
+        slideAnimation={slideAnimation}
+        isDarkMode={isDarkMode}
+        savedRemedies={savedRemedies}
+        onRemoveRemedy={removeFromSavedRemedies}
+      />
+
+      {/* Saved Articles Modal */}
+      <SavedArticlesModal
+        visible={articlesModalVisible}
+        toggleModal={(visible) => toggleModal(setArticlesModalVisible, visible)}
+        slideAnimation={slideAnimation}
+        isDarkMode={isDarkMode}
+        savedArticles={savedArticles}
+        onRemoveArticle={removeFromSavedArticles}
+      />
+
+      {/* Add Saved Herbs Modal */}
+      <SavedHerbsModal
+        visible={herbsModalVisible}
+        toggleModal={(visible) => toggleModal(setHerbsModalVisible, visible)}
+        slideAnimation={slideAnimation}
+        isDarkMode={isDarkMode}
+        savedHerbs={savedHerbs}
+        onRemoveHerb={removeFromSavedHerbs}
+        onViewHerb={(herb) => {
+          toggleModal(setHerbsModalVisible, false);
+          // You could navigate to herb detail here if needed
+        }}
+      />
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        visible={editProfileModalVisible}
+        toggleModal={(visible) => toggleModal(setEditProfileModalVisible, visible)}
+        slideAnimation={slideAnimation}
+        isDarkMode={isDarkMode}
+        userData={userData}
+        profileImage={profileImage}  // Pass current profile image
+        onSaveChanges={handleSaveUserData}
+      />
+
+      {/* Help Center Modal */}
+      <HelpCenterModal
+        visible={helpCenterModalVisible}
+        toggleModal={(visible) => toggleModal(setHelpCenterModalVisible, visible)}
+        slideAnimation={slideAnimation}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* Contact Us Modal */}
+      <ContactUsModal
+        visible={contactUsModalVisible}
+        toggleModal={(visible) => toggleModal(setContactUsModalVisible, visible)}
+        slideAnimation={slideAnimation}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicyModal
+        visible={privacyPolicyModalVisible}
+        toggleModal={(visible) => toggleModal(setPrivacyPolicyModalVisible, visible)}
+        slideAnimation={slideAnimation}
+        isDarkMode={isDarkMode}
+      />
     </View>
   );
 }
@@ -274,136 +403,11 @@ const styles = StyleSheet.create({
     paddingTop: 100, // Space for header
     paddingBottom: 30,
   },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    marginHorizontal: 16,
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    marginTop: 20,
-  },
-  darkProfileHeader: {
-    backgroundColor: '#2a2a2a',
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 2,
-    borderColor: '#3e7d32',
-  },
-  profileInfo: {
-    marginLeft: 16,
-    flex: 1,
-  },
-  profileName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  profileEmail: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
-  editButton: {
-    backgroundColor: '#e8f5e9',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-  },
-  editButtonText: {
-    color: '#3e7d32',
-    fontSize: 12,
-    fontWeight: '500',
-  },
   darkText: {
     color: '#f0f0f0',
   },
   darkMutedText: {
     color: '#aaa',
-  },
-  menuSection: {
-    backgroundColor: '#fff',
-    marginHorizontal: 16,
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  darkSection: {
-    backgroundColor: '#2a2a2a',
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  darkMenuItem: {
-    borderBottomColor: '#333',
-  },
-  menuItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  menuIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#e8f5e9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  darkMenuIconContainer: {
-    backgroundColor: 'rgba(62, 125, 50, 0.2)',
-  },
-  menuItemText: {
-    fontSize: 15,
-    color: '#333',
-  },
-  menuItemRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  menuItemValue: {
-    fontSize: 14,
-    color: '#888',
-    marginRight: 8,
-  },
-  badge: {
-    backgroundColor: '#3e7d32',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 10,
-    marginRight: 8,
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '500',
   },
   logoutButton: {
     flexDirection: 'row',

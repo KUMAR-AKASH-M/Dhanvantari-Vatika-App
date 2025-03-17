@@ -1,45 +1,74 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get("window");
 
-interface Plant {
+// Update interface to match herb structure
+interface Herb {
+  id: string;
   name: string;
   description: string;
   image: any;
+  scientificName: string;
+  benefits?: string[];
+  howToUse?: string[];
+  growingTips?: string[];
+  category?: string;
 }
 
 interface HealingPlantsProps {
-  plants: Plant[];
-  onPlantPress: (plant: Plant) => void;
+  plants: Herb[];
+  onPlantPress: (herb: Herb) => void;
   onViewAllPress: () => void;
-  isDarkMode: boolean; // Add theme prop
+  isDarkMode: boolean;
+  navigateToHerbs?: boolean;
 }
 
-const HealingPlants = ({ plants, onPlantPress, onViewAllPress, isDarkMode }: HealingPlantsProps) => {
+// Rename component to MedicinalHerbs for consistency, but keep export as HealingPlants
+const HealingPlants = ({ 
+  plants, 
+  onPlantPress, 
+  onViewAllPress, 
+  isDarkMode,
+  navigateToHerbs = true 
+}: HealingPlantsProps) => {
+  const router = useRouter();
+  
+  const handleViewAllPress = () => {
+    if (navigateToHerbs) {
+      // Navigate to the herbs tab
+      router.push('/herbs');
+    } else {
+      // Use the provided callback function for other cases
+      onViewAllPress();
+    }
+  };
+
   return (
     <View style={[styles.section, isDarkMode && styles.darkSection]}>
       <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Healing Plants</Text>
-        <TouchableOpacity onPress={onViewAllPress}>
+        <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Medicinal Herbs</Text>
+        <TouchableOpacity onPress={handleViewAllPress}>
           <Text style={[styles.seeAll, isDarkMode && styles.darkText]}>View All</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.plantsGrid}>
-        {plants.map((plant, idx) => (
+      <View style={styles.herbsGrid}>
+        {plants.map((herb, idx) => (
           <TouchableOpacity 
             key={idx} 
-            style={[styles.plantCard, isDarkMode && styles.darkCard]}
-            onPress={() => onPlantPress(plant)}
+            style={[styles.herbCard, isDarkMode && styles.darkCard]}
+            onPress={() => onPlantPress(herb)}
+            activeOpacity={0.8}
           >
-            <Image source={plant.image} style={styles.plantImage} />
+            <Image source={herb.image} style={styles.herbImage} />
             <LinearGradient
-              colors={['transparent', isDarkMode ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.3)']}
-              style={styles.plantOverlay}
+              colors={['transparent', isDarkMode ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.5)']}
+              style={styles.herbOverlay}
             >
-              <Text style={styles.plantName}>{plant.name}</Text>
-              <Text style={styles.plantDescription}>{plant.description}</Text>
+              <Text style={styles.herbName}>{herb.name}</Text>
+              <Text style={styles.herbDescription} numberOfLines={2}>{herb.description}</Text>
             </LinearGradient>
           </TouchableOpacity>
         ))}
@@ -72,12 +101,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
   },
-  plantsGrid: {
+  herbsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  plantCard: {
+  herbCard: {
     width: width / 2 - 30,
     height: 180,
     borderRadius: 12,
@@ -90,23 +119,23 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     position: 'relative',
   },
-  plantImage: {
+  herbImage: {
     width: "100%",
     height: "100%",
   },
-  plantOverlay: {
+  herbOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     padding: 12,
   },
-  plantName: {
+  herbName: {
     color: '#fff',
     fontSize: 16,
     fontWeight: "bold",
   },
-  plantDescription: {
+  herbDescription: {
     color: 'rgba(255,255,255,0.9)',
     fontSize: 12,
     marginTop: 4,

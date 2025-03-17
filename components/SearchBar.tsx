@@ -3,18 +3,36 @@ import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface SearchBarProps {
-  isDarkMode: boolean; // Add theme prop
+  isDarkMode: boolean;
+  onChangeText?: (text: string) => void; // Add handler prop
+  value?: string; // Add value prop
+  placeholder?: string; // Add customizable placeholder
 }
 
-const SearchBar = ({ isDarkMode }: SearchBarProps) => {
+const SearchBar = ({ 
+  isDarkMode, 
+  onChangeText, 
+  value = '', 
+  placeholder = "Search for herbs, products, remedies..." 
+}: SearchBarProps) => {
   return (
     <View style={[styles.searchContainer, isDarkMode && styles.darkContainer]}>
       <Ionicons name="search" size={20} color={isDarkMode ? "#ccc" : "#666"} style={styles.searchIcon} />
       <TextInput
-        placeholder="Search for herbs, products, remedies..."
+        placeholder={placeholder}
         style={[styles.searchInput, isDarkMode && styles.darkInput]}
         placeholderTextColor={isDarkMode ? "#ccc" : "#999"}
+        value={value}
+        onChangeText={onChangeText}
       />
+      {value ? (
+        <TouchableOpacity 
+          style={styles.clearButton} 
+          onPress={() => onChangeText && onChangeText('')}
+        >
+          <Ionicons name="close-circle" size={18} color={isDarkMode ? "#ccc" : "#666"} />
+        </TouchableOpacity>
+      ) : null}
       <TouchableOpacity style={styles.filterButton}>
         <Ionicons name="filter" size={18} color={isDarkMode ? "#ccc" : "#3e7d32"} />
       </TouchableOpacity>
@@ -53,6 +71,9 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   filterButton: {
+    padding: 8,
+  },
+  clearButton: {
     padding: 8,
   },
 });
