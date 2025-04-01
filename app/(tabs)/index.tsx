@@ -71,10 +71,75 @@ export default function Index() {
   ];
 
   const productData = [
-    {name: "Ashwagandha Kit", price: "₹599", image: IMAGES.products.product1, rating: 4.8, reviews: 156, category: "kits", featured: true},
-    {name: "Triphala Kit", price: "₹449", image: IMAGES.products.product2, rating: 4.5, reviews: 98, category: "kits", featured: false},
-    {name: "Tulsi Kit", price: "₹349", image: IMAGES.products.product3, rating: 4.7, reviews: 214, category: "herbs", featured: true},
-    {name: "Neem Kit", price: "₹499", image: IMAGES.products.product4, rating: 4.6, reviews: 120, category: "herbs", featured: false}
+    {
+      name: "Basic Ayurvedic Kit",
+      price: "₹599",
+      image: IMAGES.products.product1,
+      rating: 4.8,
+      reviews: 156,
+      category: "kits",
+      featured: true,
+      description: "Start your Ayurvedic garden journey with essential herbs for wellness.",
+      kitContents: [
+        "Seeds – Tulsi, Ashwagandha, Brahmi, Neem, Aloe Vera",
+        "Organic Fertilizer – Cow dung-based manure",
+        "Soil Mix – Enriched potting mix for better growth",
+        "Biodegradable Pots – Eco-friendly grow bags",
+        "Planting Guide – Detailed instructions with QR code"
+      ]
+    },
+    {
+      name: "Premium Ayurvedic Kit",
+      price: "₹999",
+      image: IMAGES.products.product2,
+      rating: 4.9,
+      reviews: 98,
+      category: "kits",
+      featured: true,
+      description: "Complete Ayurvedic garden experience with advanced features and tools.",
+      kitContents: [
+        "All Basic Kit Contents",
+        "Organic Pesticide – Neem oil spray",
+        "Drip Irrigation Kit – Small watering setup",
+        "Ayurvedic Recipes – Wellness guide book",
+        "Handmade Ayurvedic Soap – Natural skincare",
+        "Wooden Gardening Tools – Eco-friendly set"
+      ]
+    },
+    {
+      name: "Immunity Herb Kit",
+      price: "₹449",
+      image: IMAGES.products.product3,
+      rating: 4.7,
+      reviews: 214,
+      category: "specialized",
+      featured: true,
+      description: "Focused collection of immunity-boosting Ayurvedic herbs.",
+      kitContents: [
+        "Seeds – Tulsi, Giloy, Amla",
+        "Organic Fertilizer – Special blend",
+        "Soil Mix – Premium potting mix",
+        "Biodegradable Pots – 3 coconut husk planters",
+        "Immunity Tea Blend – Sample packet"
+      ]
+    },
+    {
+      name: "Skin Care Herb Kit",
+      price: "₹499",
+      image: IMAGES.products.product4,
+      rating: 4.6,
+      reviews: 120,
+      category: "specialized",
+      featured: true,
+      description: "Grow herbs traditionally used for natural skin care remedies.",
+      kitContents: [
+        "Seeds – Neem, Aloe Vera, Calendula",
+        "Organic Fertilizer – Skin herb special blend",
+        "Soil Mix – Balanced potting mix",
+        "Biodegradable Pots – 3 grow bags",
+        "DIY Skincare Guide – With recipe cards"
+      ]
+    }
   ];
 
   // Define herb data with richer information to match HerbDetailModal requirements
@@ -464,7 +529,7 @@ export default function Index() {
         
         <Footer 
           logoUri="../assets/images/icon.png"
-          copyright="Dhanvantari Vatika © 2023"
+          copyright="Dhanvantari Vatika © 2025"
           tagline="Ancient remedies for modern wellness"
           isDarkMode={isDarkMode}
         />

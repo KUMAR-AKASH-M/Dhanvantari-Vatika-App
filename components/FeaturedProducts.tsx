@@ -19,6 +19,9 @@ interface Product {
   reviews: number;
   isNew?: boolean;
   isSale?: boolean;
+  category?: string;
+  description?: string;
+  kitContents?: string[];
 }
 
 interface FeaturedProductsProps {

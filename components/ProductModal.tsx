@@ -166,30 +166,33 @@ const ProductModal = ({ visible, product, onClose, onAddToCart, isDarkMode }: Pr
   // Product content
   const getProductContent = () => {
     return {
-      description: "This premium Ayurvedic product contains high-quality natural ingredients sourced directly from organic farms. Made following traditional methods with modern quality standards.",
-      benefits: [
-        "Supports immune system health",
-        "Promotes natural energy and vitality",
-        "Helps maintain overall wellbeing",
-        "Made from 100% natural ingredients"
+      description: product.description || "This premium Ayurvedic garden kit contains everything you need to grow your own healing herbs at home. Each kit is carefully assembled with high-quality seeds and eco-friendly materials.",
+      benefits: product.kitContents || [
+        "Seeds for 5 Ayurvedic herbs",
+        "Organic, chemical-free fertilizer",
+        "Premium potting soil mix",
+        "Eco-friendly biodegradable pots",
+        "Comprehensive planting guide"
       ],
       ingredients: [
-        "Organic herbs harvested at peak potency",
-        "No artificial additives or preservatives",
-        "Processed using traditional Ayurvedic methods",
-        "Quality tested for purity and efficacy"
+        "100% organic, non-GMO herb seeds",
+        "Chemical-free, organic fertilizers",
+        "Premium soil mix with coco peat and vermicompost",
+        "Biodegradable pots made from coconut husk or recycled materials",
+        "Printed guide on sustainable paper"
       ],
       usage: [
-        "Take 1-2 capsules daily with warm water",
-        "Best consumed after meals",
-        "Store in a cool, dry place",
-        "Course duration: 1-3 months for optimal results"
+        "Follow the planting guide for each herb variety",
+        "Use the biodegradable pots or transfer to your garden",
+        "Apply organic fertilizer as recommended",
+        "Water according to the specific needs of each herb",
+        "Harvest and use herbs as directed in the guide"
       ],
-      details: `The formula has been created based on age-old Ayurvedic principles refined over thousands of years. Each ingredient is carefully selected for its specific properties and how it works in harmony with other components.
+      details: `This Ayurvedic garden kit is designed based on traditional knowledge refined over thousands of years. We've carefully selected herb varieties that are both beneficial for health and relatively easy to grow at home.
 
-Traditional Ayurvedic doctors (Vaidyas) recommend this product as part of a holistic approach to wellness, which includes proper diet, exercise, and mental health practices.
+Each component of the kit is environmentally friendly and sustainably sourced. The growing guide includes not only planting instructions but also traditional Ayurvedic uses for each herb once they mature.
 
-Quality is our highest priority. Each batch undergoes extensive testing for purity and potency before reaching you. The herbs are harvested at their peak potency to ensure maximum benefit.`,
+Growing your own Ayurvedic herbs connects you to the ancient wisdom of natural healing while providing fresh, potent ingredients for your wellness routine. The kit allows you to experience the full journey from seed to remedy.`,
     };
   };
 
@@ -202,12 +205,12 @@ Quality is our highest priority. Each batch undergoes extensive testing for puri
         return (
           <>
             <Text style={[styles.description, isDarkMode && styles.darkText]}>
-              {content.description}
+              {product.description || content.description}
             </Text>
             
             <View style={styles.section}>
-              <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Benefits</Text>
-              {content.benefits.map((benefit, index) => (
+              <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Kit Contents</Text>
+              {(product.kitContents || content.benefits).map((item, index) => (
                 <View key={index} style={styles.bulletPoint}>
                   <Ionicons 
                     name="checkmark-circle" 
@@ -216,14 +219,14 @@ Quality is our highest priority. Each batch undergoes extensive testing for puri
                     style={styles.bulletIcon} 
                   />
                   <Text style={[styles.bulletText, isDarkMode && styles.darkText]}>
-                    {benefit}
+                    {item}
                   </Text>
                 </View>
               ))}
             </View>
 
             <View style={styles.section}>
-              <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Details</Text>
+              <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>About This Kit</Text>
               <Text style={[styles.detailsText, isDarkMode && styles.darkText]}>
                 {content.details}
               </Text>
@@ -234,7 +237,7 @@ Quality is our highest priority. Each batch undergoes extensive testing for puri
         return (
           <View style={styles.ingredientsContainer}>
             <Text style={[styles.tabIntro, isDarkMode && styles.darkText]}>
-              This product contains premium quality natural ingredients:
+              This kit contains premium quality, sustainably sourced components:
             </Text>
             {content.ingredients.map((ingredient, index) => (
               <View key={index} style={[styles.ingredientCard, isDarkMode && styles.darkIngredientCard]}>
@@ -254,7 +257,7 @@ Quality is our highest priority. Each batch undergoes extensive testing for puri
         return (
           <View style={styles.usageContainer}>
             <Text style={[styles.tabIntro, isDarkMode && styles.darkText]}>
-              For best results, follow these usage guidelines:
+              For best results with your Ayurvedic herb kit, follow these guidelines:
             </Text>
             {content.usage.map((instruction, index) => (
               <View key={index} style={[styles.usageCard, isDarkMode && styles.darkUsageCard]}>

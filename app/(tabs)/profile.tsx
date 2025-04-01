@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   Text, 
   View, 
@@ -7,10 +7,15 @@ import {
   ScrollView,
   Switch,
   Animated,
-  Dimensions
+  Dimensions,
+  Platform,
+  Alert
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import { useTheme } from "../../context/ThemeContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { useSavedRemedies } from "../../context/RemedyContext";
@@ -77,6 +82,15 @@ const INITIAL_SAVED_REMEDIES = [
   }
 ];
 
+// Configure notifications
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+
 export default function ProfileScreen() {
   const { isDarkMode } = useTheme();
   const [notifications, setNotifications] = useState(true);
@@ -94,6 +108,9 @@ export default function ProfileScreen() {
   const [userData, setUserData] = useState(USER_DATA);
   const [profileImage, setProfileImage] = useState(PROFILE_IMAGE);
   const [slideAnimation] = useState(new Animated.Value(height));
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const notificationListener = useRef();
+  const responseListener = useRef();
   
   // Use contexts for all saved data
   const { savedItems, removeFromWishlist } = useWishlist();
@@ -148,6 +165,51 @@ export default function ProfileScreen() {
     console.log("Profile updated:", updatedData);
   };
 
+  // Register for push notifications
+  useEffect(() => {
+    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+
+    // Listen for incoming notifications
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification received:', notification);
+    });
+
+    // Listen for user interactions with notifications
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('Notification response:', response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
+  // Toggle push notifications
+  const togglePushNotifications = async (value) => {
+    if (value) {
+      const { status } = await Notifications.getPermissionsAsync();
+      if (status !== 'granted') {
+        const { status: newStatus } = await Notifications.requestPermissionsAsync();
+        if (newStatus !== 'granted') {
+          Alert.alert(
+            'Permission Required',
+            'Please enable notification permissions to receive updates.',
+            [{ text: 'OK' }]
+          );
+          return;
+        }
+      }
+      
+      // Send a test notification when enabled
+      await schedulePushNotification();
+    }
+    
+    setNotifications(value);
+    // In a real app, you would store this preference on your backend
+    console.log(`Push notifications ${value ? 'enabled' : 'disabled'}`);
+  };
+
   // Menu items for profile
   const accountMenuItems = [
     { 
@@ -197,7 +259,7 @@ export default function ProfileScreen() {
           trackColor={{ false: "#ddd", true: "#c8e6c9" }}
           thumbColor={notifications ? "#3e7d32" : isDarkMode ? "#888" : "#f4f3f4"}
           ios_backgroundColor="#ddd"
-          onValueChange={setNotifications}
+          onValueChange={togglePushNotifications}
           value={notifications}
         />
       )
@@ -386,6 +448,59 @@ export default function ProfileScreen() {
       />
     </View>
   );
+}
+
+// Schedule a notification
+async function schedulePushNotification() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Notifications Enabled ✅",
+      body: "You will now receive updates from Dhanvantari Vatika",
+      data: { screen: 'profile' },
+    },
+    trigger: { seconds: 2 },
+  });
+}
+
+// Register for push notifications
+async function registerForPushNotificationsAsync() {
+  let token;
+  
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#3e7d32',
+    });
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    
+    if (finalStatus !== 'granted') {
+      Alert.alert(
+        'Permission Required',
+        'Failed to get push token for notification permissions.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+    
+    token = (await Notifications.getExpoPushTokenAsync({
+      projectId: Constants.expoConfig?.extra?.eas?.projectId,
+    })).data;
+  } else {
+    Alert.alert('Must use physical device for Push Notifications');
+  }
+
+  return token;
 }
 
 const styles = StyleSheet.create({

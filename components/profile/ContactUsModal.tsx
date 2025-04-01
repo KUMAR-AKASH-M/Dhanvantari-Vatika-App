@@ -7,7 +7,8 @@ import {
   Animated,
   TextInput,
   Alert,
-  Linking
+  Linking,
+  ScrollView
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -70,61 +71,67 @@ const ContactUsModal = ({ visible, toggleModal, slideAnimation, isDarkMode }) =>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.content}>
-        <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Get in Touch</Text>
-        
-        <View style={styles.contactMethods}>
-          {contactMethods.map((method, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={[styles.contactMethod, isDarkMode && styles.darkContactMethod]}
-              onPress={method.action}
-            >
-              <Ionicons name={method.icon} size={24} color={isDarkMode ? "#8bc34a" : "#3e7d32"} />
-              <View style={styles.contactMethodText}>
-                <Text style={[styles.contactMethodLabel, isDarkMode && styles.darkText]}>{method.label}</Text>
-                <Text style={[styles.contactMethodValue, isDarkMode && styles.darkMutedText]}>{method.value}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={isDarkMode ? "#888" : "#666"} />
-            </TouchableOpacity>
-          ))}
-        </View>
+      <ScrollView 
+        style={styles.scrollContainer} 
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 80 }]} 
+        showsVerticalScrollIndicator={true}
+      >
+        <View style={styles.content}>
+          <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Get in Touch</Text>
+          
+          <View style={styles.contactMethods}>
+            {contactMethods.map((method, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={[styles.contactMethod, isDarkMode && styles.darkContactMethod]}
+                onPress={method.action}
+              >
+                <Ionicons name={method.icon} size={24} color={isDarkMode ? "#8bc34a" : "#3e7d32"} />
+                <View style={styles.contactMethodText}>
+                  <Text style={[styles.contactMethodLabel, isDarkMode && styles.darkText]}>{method.label}</Text>
+                  <Text style={[styles.contactMethodValue, isDarkMode && styles.darkMutedText]}>{method.value}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={isDarkMode ? "#888" : "#666"} />
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        <Text style={[styles.sectionTitle, isDarkMode && styles.darkText, styles.formTitle]}>
-          Send us a Message
-        </Text>
-        
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={[styles.inputLabel, isDarkMode && styles.darkText]}>Subject</Text>
-            <TextInput
-              style={[styles.input, isDarkMode && styles.darkInput]}
-              placeholder="What is this regarding?"
-              placeholderTextColor={isDarkMode ? "#888" : "#999"}
-              value={subject}
-              onChangeText={setSubject}
-            />
-          </View>
+          <Text style={[styles.sectionTitle, isDarkMode && styles.darkText, styles.formTitle]}>
+            Send us a Message
+          </Text>
           
-          <View style={styles.inputContainer}>
-            <Text style={[styles.inputLabel, isDarkMode && styles.darkText]}>Message</Text>
-            <TextInput
-              style={[styles.messageInput, isDarkMode && styles.darkInput]}
-              placeholder="How can we help you?"
-              placeholderTextColor={isDarkMode ? "#888" : "#999"}
-              multiline
-              numberOfLines={6}
-              value={message}
-              onChangeText={setMessage}
-              textAlignVertical="top"
-            />
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Text style={[styles.inputLabel, isDarkMode && styles.darkText]}>Subject</Text>
+              <TextInput
+                style={[styles.input, isDarkMode && styles.darkInput]}
+                placeholder="What is this regarding?"
+                placeholderTextColor={isDarkMode ? "#888" : "#999"}
+                value={subject}
+                onChangeText={setSubject}
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Text style={[styles.inputLabel, isDarkMode && styles.darkText]}>Message</Text>
+              <TextInput
+                style={[styles.messageInput, isDarkMode && styles.darkInput]}
+                placeholder="How can we help you?"
+                placeholderTextColor={isDarkMode ? "#888" : "#999"}
+                multiline
+                numberOfLines={6}
+                value={message}
+                onChangeText={setMessage}
+                textAlignVertical="top"
+              />
+            </View>
+            
+            <TouchableOpacity style={[styles.submitButton, { marginBottom: 20 }]} onPress={handleSubmit}>
+              <Text style={styles.submitButtonText}>Send Message</Text>
+            </TouchableOpacity>
           </View>
-          
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>Send Message</Text>
-          </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </Animated.View>
   );
 };
@@ -148,6 +155,13 @@ const styles = StyleSheet.create({
   },
   darkModalContainer: {
     backgroundColor: '#1e1e1e',
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 80, // Added padding to ensure content is above the navigation bar
   },
   header: {
     flexDirection: 'row',
@@ -248,6 +262,7 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     marginTop: 16,
+    marginBottom: 20, // Added extra margin at the bottom
   },
   submitButtonText: {
     color: 'white',

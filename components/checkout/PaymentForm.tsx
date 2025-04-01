@@ -95,6 +95,7 @@ const PaymentForm = ({
       
       <Text style={[styles.testCardHint, isDarkMode && styles.darkMutedText]}>
         For testing, use: 4242 4242 4242 4242, any future expiry date, any CVC
+        <Text style={styles.devModeText}> (Dev mode: any value works)</Text>
       </Text>
       
       <Text style={[styles.formLabel, isDarkMode && styles.darkText]}>Name on Card</Text>
@@ -260,6 +261,10 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 15,
     fontStyle: 'italic',
+  },
+  devModeText: {
+    color: '#e91e63',
+    fontWeight: '700',
   },
 });
 

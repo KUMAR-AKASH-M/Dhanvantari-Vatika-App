@@ -48,10 +48,24 @@ export const OrderProvider = ({ children }) => {
     // Create order number with random component
     const orderNumber = `#ORD-${currentDate.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     
+    // Get image URI safely
+    const getImageUri = (item) => {
+      if (!item || !item.image) return 'https://placehold.co/200x200/png?text=Order';
+      
+      if (typeof item.image === 'string') return item.image;
+      
+      if (typeof item.image === 'object' && item.image !== null) {
+        // @ts-ignore - we're handling different possible formats
+        if (item.image.uri) return item.image.uri;
+      }
+      
+      return 'https://placehold.co/200x200/png?text=Order';
+    };
+    
     // Create image from first product or default
-    const image = cartItems.length > 0 && cartItems[0].image 
-      ? (typeof cartItems[0].image === 'string' ? cartItems[0].image : 'https://placehold.co/60x60/png?text=Order')
-      : 'https://placehold.co/60x60/png?text=Order';
+    const image = cartItems.length > 0 
+      ? getImageUri(cartItems[0])
+      : 'https://placehold.co/200x200/png?text=Order';
     
     // Calculate total items
     const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);

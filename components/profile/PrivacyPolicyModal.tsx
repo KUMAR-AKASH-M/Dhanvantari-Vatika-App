@@ -63,7 +63,7 @@ const PrivacyPolicyModal = ({ visible, toggleModal, slideAnimation, isDarkMode }
 
       <ScrollView style={styles.content}>
         <Text style={[styles.lastUpdated, isDarkMode && styles.darkMutedText]}>
-          Last Updated: June 1, 2023
+          Last Updated: June 1, 2025
         </Text>
         
         <Text style={[styles.introduction, isDarkMode && styles.darkText]}>
