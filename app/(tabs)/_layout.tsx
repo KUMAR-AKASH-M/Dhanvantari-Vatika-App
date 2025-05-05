@@ -15,7 +15,7 @@ export default function TabsLayout() {
   // Handle tab press through our custom bottom navigation
   const handleTabPress = (item) => {
     setActiveTab(item.name.toLowerCase());
-    let route: "/" | "/herbs" | "/learn" | "/profile" | "/chatbot" = '/';
+    let route: "/" | "/herbs" | "/learn" | "/profile" | "/chatbot" | "/garden" = '/';
     switch (item.name.toLowerCase()) {
       case 'home':
         route = '/';
@@ -28,6 +28,9 @@ export default function TabsLayout() {
         break;
       case 'chatbot':
         route = '/chatbot';
+        break;
+      case 'garden':
+        route = '/garden';
         break;
       case 'profile':
         route = '/profile';
@@ -48,6 +51,7 @@ export default function TabsLayout() {
         <Tabs.Screen name="herbs" />
         <Tabs.Screen name="learn" />
         <Tabs.Screen name="chatbot" />
+        <Tabs.Screen name="garden" />
         <Tabs.Screen name="profile" />
       </Tabs>
       
@@ -55,6 +59,7 @@ export default function TabsLayout() {
         items={[
           {name: "Home", icon: "home", active: activeTab === 'index'},
           {name: "Herbs", icon: "leaf-outline", active: activeTab === 'herbs'},
+          {name: "Garden", icon: "flower-outline", active: activeTab === 'garden'},
           {name: "Chatbot", icon: "chatbubble-ellipses-outline", active: activeTab === 'chatbot'},
           {name: "Learn", icon: "book-outline", active: activeTab === 'learn'},
           {name: "Profile", icon: "person-outline", active: activeTab === 'profile'}

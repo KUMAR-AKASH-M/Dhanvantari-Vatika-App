@@ -126,6 +126,76 @@ const HERBS_DATA = [
     categories: ['digestive'],
     featured: false,
     stock: 18
+  },
+  {
+    id: '7',
+    name: 'Giloy',
+    scientificName: 'Tinospora cordifolia',
+    image: { uri: 'https://m.media-amazon.com/images/I/71MINO7e8XL._SX679_.jpg' },
+    benefits: ['Immune booster', 'Reduces fever', 'Anti-inflammatory', 'Detoxifier'],
+    description: 'Known as "Amrita" or the root of immortality in Ayurveda, Giloy is a climbing shrub that strengthens immunity.',
+    price: "₹189",
+    rating: 4.6,
+    reviews: 92,
+    categories: ['immune', 'digestive'],
+    featured: true,
+    stock: 25
+  },
+  {
+    id: '8',
+    name: 'Turmeric',
+    scientificName: 'Curcuma longa',
+    image: { uri: 'https://www.epicgardening.com/wp-content/uploads/2020/11/A-shot-of-a-persons-hand-holding-a-bunch-of-freshly-harvested-root-crop-called-turmeric.jpg' },
+    benefits: ['Anti-inflammatory', 'Antioxidant', 'Joint health', 'Improves digestion'],
+    description: 'The golden spice of India, turmeric has been used for thousands of years for its powerful medicinal properties.',
+    price: "₹149",
+    rating: 4.9,
+    reviews: 220,
+    categories: ['immune', 'skin'],
+    featured: true,
+    stock: 50
+  },
+  {
+    id: '9',
+    name: 'Ginger',
+    scientificName: 'Zingiber officinale',
+    image: { uri: 'https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img,w_590,h_442/https://thegreenconspiracy.com/wp-content/uploads/2021/09/ginger-root-harvest.jpg' },
+    benefits: ['Digestion aid', 'Nausea relief', 'Anti-inflammatory', 'Pain reduction'],
+    description: 'A warming herb used extensively in both cuisine and medicine for its digestive and anti-inflammatory benefits.',
+    price: "₹129",
+    rating: 4.7,
+    reviews: 175,
+    categories: ['digestive', 'immune'],
+    featured: false,
+    stock: 35
+  },
+  {
+    id: '10',
+    name: 'Licorice',
+    scientificName: 'Glycyrrhiza glabra',
+    image: { uri: 'https://plantura.garden/uk/wp-content/uploads/sites/2/2021/09/liquorice.jpg' },
+    benefits: ['Soothes digestive issues', 'Respiratory support', 'Adrenal support', 'Oral health'],
+    description: 'One of the most widely used herbs in Ayurveda, licorice root is known for its sweet taste and medicinal properties.',
+    price: "₹259",
+    rating: 4.5,
+    reviews: 82,
+    categories: ['digestive', 'stress'],
+    featured: false,
+    stock: 15
+  },
+  {
+    id: '11',
+    name: 'Triphala',
+    scientificName: 'Three fruit combination',
+    image: { uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0tsLegrZM92fCBf1TIT1c3Z2aai_7QSJ_fvFD_iOhYg&s&ec=72940545' },
+    benefits: ['Digestive cleanser', 'Gentle detoxification', 'Rich in antioxidants', 'Supports eye health'],
+    description: 'A traditional Ayurvedic formulation consisting of three fruits: Amalaki, Bibhitaki, and Haritaki.',
+    price: "₹199",
+    rating: 4.8,
+    reviews: 145,
+    categories: ['digestive', 'immune'],
+    featured: true,
+    stock: 30
   }
 ];
 

@@ -26,7 +26,7 @@ export default {
       package: "com.dhanvantarivatika.app"
     },
     web: {
-      favicon: "./assets/favicon.png"
+      favicon: "./assets/images/favicon.png"
     },
     extra: {
       stripePublishableKey: "pk_test_51R3MjH00u6wzvIw1kKyruiEAfGOCI3prdDHAc0gyqYBhSjCWJ8vgiMERjXcNqwHzgVLlV4zpzLi9L3bJx4fmCpWV00XrypsthE",
